@@ -1,6 +1,7 @@
 import json
 import yaml
 import requests
+import argparse
 
 def parse_pubspec_lock(file_path):
     with open(file_path, 'r') as file:
@@ -45,17 +46,26 @@ def generate_sbom(dependencies):
         if hash_info:
             component["hashes"] = [{"alg": "SHA-256", "content": hash_info}]
         if repository:
-            component["externalReferences"] = [{"type": "repository", "vcs": repository}]
+            component["externalReferences"] = [{"type": "repository", "url": repository}]
         if description:
             component["description"] = description
 
         sbom["components"].append(component)
     return sbom
 
-dependencies = parse_pubspec_lock('../pubspec.lock')['packages']
-sbom = generate_sbom(dependencies)
+def main():
+    parser = argparse.ArgumentParser(description="Generate SBOM for Dart dependencies in a Flutter project.")
+    parser.add_argument("pubspec_lock_path", help="Path to the pubspec.lock file")
+    args = parser.parse_args()
 
-with open('bom.json', 'w') as file:
-    json.dump(sbom, file, indent=2)
+    dependencies = parse_pubspec_lock(args.pubspec_lock_path)['packages']
+    sbom = generate_sbom(dependencies)
 
-print("SBOM generation completed. Output written to bom.json")
+    with open('bom.json', 'w') as file:
+        json.dump(sbom, file, indent=2)
+
+    print("SBOM generation completed. Output written to bom.json")
+
+if __name__ == "__main__":
+    main()
+    
