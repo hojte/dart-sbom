@@ -46,7 +46,7 @@ def generate_sbom(dependencies):
         if hash_info:
             component["hashes"] = [{"alg": "SHA-256", "content": hash_info}]
         if repository:
-            component["externalReferences"] = [{"type": "repository", "url": repository}]
+            component["externalReferences"] = [{"type": "repository", "vcs": repository}]
         if description:
             component["description"] = description
 
